@@ -16,36 +16,54 @@ def index():
     """Página principal"""
     return render_template('index.html')
 
+import pandas as pd
+
 @app.route('/calculadora', methods=['GET', 'POST'])
 def calculadora():
     """Página de calculadora de calorías"""
     resultado = None
+    datos_guardados = None
+    
+    try:
+        # Intentar leer los últimos datos guardados
+        df = pd.read_csv('datos/resultados_calculadora.csv')
+        if not df.empty:
+            # Obtener la última fila como un diccionario
+            datos_guardados = df.iloc[-1].to_dict()
+    except FileNotFoundError:
+        pass
     
     if request.method == 'POST':
         peso = float(request.form['peso'])
         altura = float(request.form['altura'])
         edad = int(request.form['edad'])
         sexo = request.form['sexo']
+        
+        # Calcular calorías y determinar plan alimenticio
         resultado = calcular_calorias(peso, altura, edad, sexo)
+        
+        # Agregar campos adicionales requeridos por guardar_resultados_calculadora
+        resultado['peso'] = peso
+        resultado['altura'] = altura
+        resultado['edad'] = edad
+        resultado['genero'] = sexo
+        
+        # Guardar resultados
         guardar_resultados_calculadora(resultado)
     
-    return render_template('calculadora.html', resultado=resultado)
+    return render_template('calculadora.html', resultado=resultado, datos_guardados=datos_guardados)
 
 @app.route('/registro_peso', methods=['GET', 'POST'])
 def registro_peso():
     """Página de registro de peso"""
     historial = obtener_historial_peso()
-    
     if request.method == 'POST':
         peso = float(request.form['peso'])
         cals = float(request.form['calorias'])
         registrar_peso(peso, cals)
-        return render_template('registro_peso.php', historial=historial)
-    
+        # Redirigir al usuario para evitar reenvío de formularios
+        return redirect(url_for('registro_peso'))
     return render_template('registro_peso.php', historial=historial)
-
-if __name__ == '__main__':
-    app.run(debug=True) 
 
 @app.route('/crear_rutina', methods=['GET', 'POST'])
 def crear_rutina_csv():
@@ -77,3 +95,6 @@ def crear_rutina_csv():
             rutinas = list(reader)
 
     return render_template('rutina.html', rutinas=rutinas)
+
+if __name__ == '__main__':
+    app.run(debug=True) 

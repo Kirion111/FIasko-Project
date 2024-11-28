@@ -17,10 +17,10 @@ def calcular_calorias(peso, altura, edad, sexo='masculino'):
     # Fórmula de Harris-Benedict para calcular metabolismo basal
     if sexo == 'masculino':
         # Fórmula para hombres
-        tmb = 88.362 + (13.397 * peso) + (4.799 * altura) - (5.677 * edad)
+        tmb = (10 * peso) + (6.25 * altura) - (5 * edad) + 5
     else:
         # Fórmula para mujeres
-        tmb = 447.593 + (9.247 * peso) + (3.098 * altura) - (4.330 * edad)
+        tmb = (10 * peso) + (6.25 * altura) - (5 * edad) - 161
     
     # Calculando IMC (Índice de Masa Corporal)
     altura_metros = altura / 100
@@ -29,16 +29,16 @@ def calcular_calorias(peso, altura, edad, sexo='masculino'):
     # Categorías de IMC
     if imc < 18.5:
         estado_peso = "Bajo peso"
-        recomendacion = "Debes aumentar de peso. Consume más calorías y realiza entrenamiento de fuerza."
+        recomendacion = "Superhabit Calorico. Consume más calorías (+300kcal) y realiza entrenamiento de fuerza."
     elif 18.5 <= imc < 24.9:
         estado_peso = "Peso normal"
-        recomendacion = "Mantén tu dieta y actividad física actual."
+        recomendacion = "Mantenimiento. Mantén tu dieta y actividad física actual."
     elif 25 <= imc < 29.9:
         estado_peso = "Sobrepeso"
-        recomendacion = "Debes bajar de peso. Reduce calorías y aumenta actividad física."
+        recomendacion = "Déficit Calorico. Reduce calorías (-300kcal) y aumenta actividad física."
     else:
         estado_peso = "Obesidad"
-        recomendacion = "Consulta a un profesional de la salud para un plan de pérdida de peso."
+        recomendacion = "Déficit calorico. Reduce calorías (-500kcal) y consulta a un profesional de la salud para un plan de pérdida de peso."
     
     # Calorías diarias recomendadas (nivel de actividad moderada)
     calorias_diarias = tmb * 1.55
@@ -48,7 +48,11 @@ def calcular_calorias(peso, altura, edad, sexo='masculino'):
         'calorias_diarias': round(calorias_diarias, 2),
         'imc': round(imc, 2),
         'estado_peso': estado_peso,
-        'recomendacion': recomendacion
+        'recomendacion': recomendacion,
+        'peso': peso,
+        'altura': altura,
+        'genero': sexo,
+        'edad': edad,
     }
 
 def registrar_peso(peso, cals):
@@ -73,7 +77,7 @@ def registrar_peso(peso, cals):
             df = pd.read_csv('datos/registro_peso.csv')
         except FileNotFoundError:
             # Si no existe, crear uno nuevo
-            df = pd.DataFrame(columns=['Fecha', 'Peso'])
+            df = pd.DataFrame(columns=['Calorias Diarias','Fecha', 'Peso'])
         
         df = pd.concat([df, nuevo_registro], ignore_index=True)
         
@@ -96,35 +100,50 @@ def obtener_historial_peso():
         return df.to_dict('records')
     except FileNotFoundError:
         return []
+
+
 def guardar_resultados_calculadora(resultado):
     """
-    Guarda los resultados de la calculadora en un archivo CSV.
+    Sobrescribe los resultados de la calculadora en un archivo CSV con campos personalizados.
+    Si el archivo no existe, lo crea automáticamente.
     
     Args:
         resultado (dict): Diccionario con los resultados calculados.
     """
     try:
-        # Intentar cargar el archivo CSV existente
-        try:
-            df = pd.read_csv('datos/resultados_calculadora.csv')
-        except FileNotFoundError:
-            # Si no existe, crear uno nuevo
-            df = pd.DataFrame(columns=['Fecha', 'TMB', 'Calorías Diarias', 'IMC', 'Estado de Peso', 'Recomendación'])
-        
-        # Crear nuevo registro
+        # Crear un DataFrame con los campos especificados
         nuevo_registro = pd.DataFrame({
-            'Fecha': [pd.Timestamp.now().strftime('%Y-%m-%d')],
+            'Calorías Recomendadas': [resultado['calorias_diarias']],
+            'Peso Actual': [resultado['peso']],
+            'Altura': [resultado['altura']],
+            'Género': [resultado['genero']],
+            'Edad': [resultado['edad']],
+            'Plan Alimenticio': [resultado['recomendacion']],
             'TMB': [resultado['tmb']],
-            'Calorías Diarias': [resultado['calorias_diarias']],
             'IMC': [resultado['imc']],
-            'Estado de Peso': [resultado['estado_peso']],
-            'Recomendación': [resultado['recomendacion']]
+            'Estado de Peso': [resultado['estado_peso']]
         })
-        
-        # Añadir nuevo registro
-        df = pd.concat([df, nuevo_registro], ignore_index=True)
-        
-        # Guardar el DataFrame en el archivo
-        df.to_csv('datos/resultados_calculadora.csv', index=False)
+
+        # Sobrescribir el archivo CSV, creándolo si no existe
+        columnas = [
+            'Calorías Recomendadas', 
+            'Peso Actual', 
+            'Altura', 
+            'Género', 
+            'Edad', 
+            'Plan Alimenticio', 
+            'TMB', 
+            'IMC', 
+            'Estado de Peso'
+        ]
+        try:
+            # Intentar leer el archivo para validar su existencia
+            _ = pd.read_csv('datos/resultados_calculadora.csv')
+        except FileNotFoundError:
+            # Crear un archivo vacío con las columnas requeridas si no existe
+            pd.DataFrame(columns=columnas).to_csv('datos/resultados_calculadora.csv', index=False)
+
+        # Sobrescribir los datos con el nuevo registro
+        nuevo_registro.to_csv('datos/resultados_calculadora.csv', index=False)
     except Exception as e:
         print(f"Error al guardar los resultados: {e}")

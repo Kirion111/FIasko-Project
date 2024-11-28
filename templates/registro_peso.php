@@ -117,16 +117,3 @@
     <li><a href="{{ url_for('index') }}">Volver al Inicio</a></li>
 </body>
 </html>
-
-<?php
-  if(isset($_POST['Registrar']))
-  {
-    $fecha = date("Y/m/d");
-    $peso = $_POST['peso'];
-    $cals = $_POST['calorias'];
-    require_once('consultas.php');
-    $obj = new Contacto();
-    $obj->registrarPesoSemanal($fecha,$peso,$cals);
-    echo "si";
-  }
-  ?>

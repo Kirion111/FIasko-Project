@@ -75,6 +75,7 @@ a.home-link {
 a.home-link:hover {
   color: #45a049;
 }
+
 li {
   margin-bottom: 10px;
 }
@@ -88,6 +89,14 @@ a {
 a:hover {
   color: #45a049;
 }
+
+.resultados-guardados {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+  border: 1px solid #e0e0e0;
+}
 </style>
 <body>
     <h1>Calculadora de Calorías</h1>
@@ -95,7 +104,7 @@ a:hover {
         <label>Peso (kg): <input type="number" name="peso" step="0.1" required></label><br>
         <label>Altura (cm): <input type="number" name="altura" required></label><br>
         <label>Edad: <input type="number" name="edad" required></label><br>
-        <label>Sexo: 
+        <label>Sexo:
             <select name="sexo">
                 <option value="masculino">Masculino</option>
                 <option value="femenino">Femenino</option>
@@ -112,6 +121,22 @@ a:hover {
         <p>Estado de Peso: {{ resultado.estado_peso }}</p>
         <p>Recomendación: {{ resultado.recomendacion }}</p>
     {% endif %}
+
+    {% if datos_guardados and datos_guardados.get('Calorías Recomendadas') %}
+    <div class="resultados-guardados">
+        <h3>Últimos Resultados Guardados</h3>
+        <p>Calorías Recomendadas: {{ datos_guardados.get('Calorías Recomendadas', 'N/A') }} calorías</p>
+        <p>Peso Actual: {{ datos_guardados.get('Peso Actual', 'N/A') }} kg</p>
+        <p>Altura: {{ datos_guardados.get('Altura', 'N/A') }} cm</p>
+        <p>Género: {{ datos_guardados.get('Género', 'N/A') }}</p>
+        <p>Edad: {{ datos_guardados.get('Edad', 'N/A') }} años</p>
+        <p>Plan Alimenticio: {{ datos_guardados.get('Plan Alimenticio', 'N/A') }}</p>
+        <p>TMB: {{ datos_guardados.get('TMB', 'N/A') }} calorías</p>
+        <p>IMC: {{ datos_guardados.get('IMC', 'N/A') }}</p>
+        <p>Estado de Peso: {{ datos_guardados.get('Estado de Peso', 'N/A') }}</p>
+    </div>
+    {% endif %}
+
     <br>
     <li><a href="{{ url_for('index') }}">Volver al Inicio</a></li>
 </body>
