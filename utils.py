@@ -51,7 +51,7 @@ def calcular_calorias(peso, altura, edad, sexo='masculino'):
         'recomendacion': recomendacion
     }
 
-def registrar_peso(peso):
+def registrar_peso(peso, cals):
     """
     Registra el peso en un archivo CSV.
     
@@ -62,18 +62,18 @@ def registrar_peso(peso):
         bool: True si se registró correctamente
     """
     try:
+        # Añadir nuevo registro con fecha actual
+        nuevo_registro = pd.DataFrame({
+            'Fecha': [pd.Timestamp.now().strftime('%Y-%m-%d')],
+            'Peso': [peso],
+            'calorias_diarias': [cals]
+        })
         # Intentar cargar el CSV existente
         try:
             df = pd.read_csv('datos/registro_peso.csv')
         except FileNotFoundError:
             # Si no existe, crear uno nuevo
             df = pd.DataFrame(columns=['Fecha', 'Peso'])
-        
-        # Añadir nuevo registro con fecha actual
-        nuevo_registro = pd.DataFrame({
-            'Fecha': [pd.Timestamp.now().strftime('%Y-%m-%d')],
-            'Peso': [peso]
-        })
         
         df = pd.concat([df, nuevo_registro], ignore_index=True)
         
@@ -96,3 +96,35 @@ def obtener_historial_peso():
         return df.to_dict('records')
     except FileNotFoundError:
         return []
+def guardar_resultados_calculadora(resultado):
+    """
+    Guarda los resultados de la calculadora en un archivo CSV.
+    
+    Args:
+        resultado (dict): Diccionario con los resultados calculados.
+    """
+    try:
+        # Intentar cargar el archivo CSV existente
+        try:
+            df = pd.read_csv('datos/resultados_calculadora.csv')
+        except FileNotFoundError:
+            # Si no existe, crear uno nuevo
+            df = pd.DataFrame(columns=['Fecha', 'TMB', 'Calorías Diarias', 'IMC', 'Estado de Peso', 'Recomendación'])
+        
+        # Crear nuevo registro
+        nuevo_registro = pd.DataFrame({
+            'Fecha': [pd.Timestamp.now().strftime('%Y-%m-%d')],
+            'TMB': [resultado['tmb']],
+            'Calorías Diarias': [resultado['calorias_diarias']],
+            'IMC': [resultado['imc']],
+            'Estado de Peso': [resultado['estado_peso']],
+            'Recomendación': [resultado['recomendacion']]
+        })
+        
+        # Añadir nuevo registro
+        df = pd.concat([df, nuevo_registro], ignore_index=True)
+        
+        # Guardar el DataFrame en el archivo
+        df.to_csv('datos/resultados_calculadora.csv', index=False)
+    except Exception as e:
+        print(f"Error al guardar los resultados: {e}")

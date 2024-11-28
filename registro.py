@@ -54,7 +54,7 @@ def calcular_calorias(peso, altura, edad, sexo='masculino'):
     }
 
 # Función para registrar peso
-def registrar_peso(peso):
+def registrar_peso(peso, cals):
     """
     Registra el peso en un archivo CSV.
     
@@ -77,7 +77,8 @@ def registrar_peso(peso):
         # Añadir nuevo registro con fecha actual
         nuevo_registro = pd.DataFrame({
             'Fecha': [pd.Timestamp.now().strftime('%Y-%m-%d')],
-            'Peso': [peso]
+            'Peso': [peso],
+            'calorias_diarias': [cals]
         })
         
         df = pd.concat([df, nuevo_registro], ignore_index=True)
@@ -131,8 +132,9 @@ def registro_peso():
     
     if request.method == 'POST':
         peso = float(request.form['peso'])
-        registrar_peso(peso)
-        return redirect(url_for('registro_peso'))
+        cals = float(request.form['calorias'])
+        registrar_peso(peso, cals)
+        return render_template('registro_peso.html', historial=historial)
     
     return render_template('registro_peso.html', historial=historial)
 

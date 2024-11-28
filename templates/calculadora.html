@@ -103,9 +103,7 @@ a:hover {
         </label><br>
         <input type="submit" value="Calcular">
     </form>
-    <?php
-      require_once('templates/consultas.php');
-    ?>
+
     {% if resultado %}
         <h2>Resultados:</h2>
         <p>Tasa Metabólica Basal: {{ resultado.tmb }} calorías</p>

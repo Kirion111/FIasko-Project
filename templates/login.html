@@ -1,3 +1,11 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Inicio de sesion</title>
+    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">-->
+</head>
+<style>
 .login{
     background: #504f4f;
     align-items: center;
@@ -56,7 +64,7 @@ body {
   }
   
   input[type="text"], input[type="password"] {
-    width: 100%;
+    width: 90%;
     padding: 8px;
     margin: 5px 0;
     border: 1px solid #ccc;
@@ -75,4 +83,25 @@ body {
   button:hover {
     background-color: #45a049;
   }
-  
+</style>
+<body>
+    <form> 
+        <div class="login">
+            <fieldset>
+                <legend>Login</legend>
+                <label>Usuario
+                    <input type="text">
+                </label><br />
+                <label>Contraseña
+                    <input type="text">
+                </label><br /><br />
+                <label>
+                    <!--<button href="{{ url_for('index') }}">Ingresar</button>-->
+                    <a href="{{ url_for('index') }}">Ingresar</a>
+                    <label ></label>
+                </label><br />
+            </fieldset>
+        </div> 
+    </form>
+</body>
+</html>
